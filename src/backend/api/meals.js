@@ -51,7 +51,7 @@ router.get("/", async (request, response) => {
 //Adds a new meal
 router.post("/", async (request, response) => {
   try {
-    return await knex("meals").insert(request.query)
+    return await knex("meals").insert(request.body)
       .then(mealId => {
         knex("meals")
           .where({ id: mealId[0] })
@@ -79,7 +79,7 @@ router.put("/:id", async (request, response) => {
   try {
     // knex syntax for selecting things. Look up the documentation for knex for further info
     const updateTheMeal = await knex("meals").where({ id: request.params.id })
-      .update({ title: 'Rasmalai Sweet' });
+      .update(request.body);
     response.json(updateTheMeal);
   } catch (error) {
     throw error;

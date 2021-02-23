@@ -1,54 +1,55 @@
 const express = require("express");
 const router = express.Router();
+const app = express();
 const knex = require("../database");
-//	Returns all reservations
+//	Returns all reviews
 router.get("/", async (request, response) => {
   try {
-    const reservations=await knex("reservation");
-    response.json(reservations);
+    const reviews=await knex("review");
+    response.json(reviews);
   } catch (error) {
     throw error;
   }
 });
 
-//Adds a new reservation
+//Adds a new review
 router.post("/", async (request, response) => {
     try {
       
-     const insertedReservation= await knex("reservation").insert(request.body)
-      response.json(insertedReservation);
+     const insertedReview= await knex("review").insert(request.body)
+      response.json(insertedReview);
     } catch (error) {
       throw error;
     }
   });
-//Returns reservation by id
+//Returns review by id
 router.get("/:id", async (request, response) => {
     try {
       // knex syntax for selecting things. Look up the documentation for knex for further info
-      const reservationWithId = await knex("reservation").where({id:parseInt(request.params.id)});
-      response.json(reservationWithId);
+      const reviewWithId = await knex("review").where({id:parseInt(request.params.id)});
+      response.json(reviewWithId);
      } catch (error) {
       throw error;
     }
   });
-  //Updates the reservation by id
+  //Updates the review by id
 router.put("/:id", async (request, response) => {
     try {
       // knex syntax for selecting things. Look up the documentation for knex for further info
-      const updateTheReservation = await knex("reservation").where({id:request.params.id})
+      const updateTheReview = await knex("review").where({id:request.params.id})
       .update(request.body);
-  response.json(updateTheReservation);
+  response.json(updateTheReview);
      } catch (error) {
       throw error;
     }
   });
-  //Deletes the reservation by id
+  //Deletes the review by id
   router.delete("/:id", async (request, response) => {
     try {
       // knex syntax for selecting things. Look up the documentation for knex for further info
-      const deletedReservation = await knex("reservation").where({id:request.params.id})
+      const deletedReview = await knex("review").where({id:request.params.id})
       .del();
-  response.json(deletedReservation);
+  response.json(deletedReview);
      } catch (error) {
       throw error;
     }
