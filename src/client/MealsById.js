@@ -32,7 +32,7 @@ function MealsById() {
         setMeal(mealId[0]);
       });
     //available reservations
-    fetch(`http://localhost:5000/api/meals?availableReservations=true`)
+    fetch(`/api/meals?availableReservations=true`)
       .then((res) => res.json())
       .then((data) => {
         setAvailablereservations(data);
