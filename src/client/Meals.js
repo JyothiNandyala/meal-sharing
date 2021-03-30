@@ -2,27 +2,57 @@ import React, { useEffect, useState } from "react";
 import "./App.css";
 import "./index.css";
 import { Link } from "react-router-dom";
+import postData from "./Postdata";
 
-function Meals({ meals }) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [location, setLocation] = useState("");
-  const [price, setPrice] = useState("");
-  const [when, setWhen] = useState("");
-  const [maxreservations, setMaxreservations] = useState("");
-  const [createddate, setCreateddate] = useState("");
-  const [success, setSuccess] = useState("");
-  const [error, setError] = useState("");
-  const [formerror, setFormError] = useState("");
+const initialValues = {
+  title: "",
+  description: "",
+  location: "",
+  price: "",
+  when: "",
+  maxreservations: "",
+  createddate: "",
+};
+
+function Meals() {
+  const [inputs, setInputs] = useState(initialValues);
+  const [meals, setMeals] = useState([]);
   const [reviews, setReviews] = useState([]);
+  const [searchInput, setSearchInput] = useState("");
+  const [isLoading, setIsLoading] = useState(true);
+
+  //handling the inputs
+  const handleChange = (event) => {
+    const value = event.target.value;
+    setInputs({
+      ...inputs,
+      [event.target.name]: value,
+    });
+  };
 
   useEffect(() => {
+    if (searchInput == "") {
+      fetch(`/api/meals`)
+        .then((res) => res.json())
+        .then((mealsdata) => {
+          setIsLoading(false);
+          setMeals(mealsdata);
+        });
+    } else {
+      fetch(`/api/meals?title=${searchInput}`)
+        .then((res) => res.json())
+        .then((mealsWithTitle) => {
+          setIsLoading(false);
+          setMeals(mealsWithTitle);
+        });
+    }
+
     fetch(`/api/reviews`)
       .then((response) => response.json())
       .then((reviewsData) => {
         setReviews(reviewsData);
       });
-  }, []);
+  }, [searchInput]);
 
   //calculating the numbers of stars and average of the stars for specific meal
   const reviewsWithMeals = (meal_id) => {
@@ -58,147 +88,132 @@ function Meals({ meals }) {
 
   let randomImages = randomPics[Math.floor(Math.random() * randomPics.length)];
 
-  async function postDataForMeals(url = "", data = {}) {
-    try {
-      const response = await fetch(url, {
-        method: "POST",
-        mode: "cors",
-        cache: "no-cache",
-        credentials: "same-origin",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        redirect: "follow",
-        referrerPolicy: "no-referrer",
-        body: JSON.stringify(data),
-      });
-
-      if (response.ok) {
-        const message = `${data.title} Meal has been added successfully`;
-        setSuccess(message);
-      }
-      return response.json();
-    } catch (error) {
-      setError(error);
-    }
-  }
   const addMeal = (event) => {
     event.preventDefault();
 
     const newMeal = {
-      title: title,
-      description: description,
-      location: location,
-      when: when,
-      max_reservations: maxreservations,
-      price: price,
-      created_date: createddate,
+      title: inputs.title,
+      description: inputs.description,
+      location: inputs.location,
+      when: inputs.when,
+      max_reservations: inputs.maxreservations,
+      price: inputs.price,
+      created_date: inputs.createddate,
     };
-    if (
-      title !== "" &&
-      description !== "" &&
-      location !== "" &&
-      when !== "" &&
-      maxreservations !== "" &&
-      price !== ""
-    ) {
-      postDataForMeals("/api/meals", newMeal).then((data) => {
-        console.log(data); // JSON data parsed by `data.json()` call
-      });
-      setTitle("");
-      setDescription("");
-      setLocation("");
-      setWhen("");
-      setPrice("");
-      setCreateddate("");
-      setMaxreservations("");
+
+    const response = postData("/api/meals", newMeal).then((data) => {
+      console.log(data); // JSON data parsed by `data.json()` call
+    });
+    if (response) {
+      alert(`${newMeal.title} Meal has been added successfully!!`);
     } else {
-      setFormError("please fill the form before submitting.");
+      throw new Error(response.status);
     }
+    setInputs(initialValues);
   };
 
   return (
     <div>
-      <div className="cards">
-        {meals.map((meal, index) => (
-          <div className="main" key={meal.id}>
-            <div className="image">
-              <img src={images[index] ? images[index] : randomImages} />
-            </div>
-            <div className="title">
-              <h4>{meal.title}</h4>
-            </div>
-            <hr />
-            {reviewsWithMeals(meal.id) ? (
-              <div className="starRatingInput">
-                <span
-                  className={
-                    reviewsWithMeals(meal.id) >= 1 ? "highlighted" : ""
-                  }
-                >
-                  {" "}
-                  ★
-                </span>
-                <span
-                  className={
-                    reviewsWithMeals(meal.id) >= 2 ? "highlighted" : ""
-                  }
-                >
-                  {" "}
-                  ★
-                </span>
-                <span
-                  className={
-                    reviewsWithMeals(meal.id) >= 3 ? "highlighted" : ""
-                  }
-                >
-                  {" "}
-                  ★
-                </span>
-                <span
-                  className={
-                    reviewsWithMeals(meal.id) >= 4 ? "highlighted" : ""
-                  }
-                >
-                  {" "}
-                  ★
-                </span>
-                <span
-                  className={
-                    reviewsWithMeals(meal.id) >= 5 ? "highlighted" : ""
-                  }
-                >
-                  {" "}
-                  ★
-                </span>
-              </div>
-            ) : (
-              <div>
-                <p style={{ textAlign: "center" }}>No reviews</p>
-              </div>
-            )}
-
-            <div className="description">
-              <p>{meal.description}</p>
-            </div>
-            <hr />
-            <div className="price">
-              <p>Price:{meal.price}DK</p>
-            </div>
-            <hr />
-            <div className="moreinfo">
-              <Link to={`/meals/${meal.id}`}>
-                <h3 className="moreinfo-link">MoreInfo</h3>
-              </Link>
-            </div>
-            <div className="review">
-              <Link to={`/addreview/${meal.id}`}>
-                <h3 className="review-link">Review</h3>
-              </Link>
-            </div>
+      {isLoading ? (
+        <div style={{ textAlign: "center", fontSize: "20px" }}>Loading...</div>
+      ) : (
+        <>
+          <div className="search-form">
+            <h1>Welcome To Meals App</h1>
+            <input
+              type="text"
+              placeholder="Search for item.."
+              name="search"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+            />
           </div>
-        ))}
-      </div>
+          <div className="cards">
+            {meals.length > 0 ? (
+              meals.map((meal, index) => (
+                <div className="main" key={meal.id}>
+                  <div className="image">
+                    <img src={images[index] ? images[index] : randomImages} />
+                  </div>
+                  <div className="title">
+                    <h4>{meal.title}</h4>
+                  </div>
+                  <hr />
+                  {reviewsWithMeals(meal.id) ? (
+                    <div className="starRatingInput">
+                      <span
+                        className={
+                          reviewsWithMeals(meal.id) >= 1 ? "highlighted" : ""
+                        }
+                      >
+                        {" "}
+                        ★
+                      </span>
+                      <span
+                        className={
+                          reviewsWithMeals(meal.id) >= 2 ? "highlighted" : ""
+                        }
+                      >
+                        {" "}
+                        ★
+                      </span>
+                      <span
+                        className={
+                          reviewsWithMeals(meal.id) >= 3 ? "highlighted" : ""
+                        }
+                      >
+                        {" "}
+                        ★
+                      </span>
+                      <span
+                        className={
+                          reviewsWithMeals(meal.id) >= 4 ? "highlighted" : ""
+                        }
+                      >
+                        {" "}
+                        ★
+                      </span>
+                      <span
+                        className={
+                          reviewsWithMeals(meal.id) >= 5 ? "highlighted" : ""
+                        }
+                      >
+                        {" "}
+                        ★
+                      </span>
+                    </div>
+                  ) : (
+                    <div>
+                      <p style={{ textAlign: "center" }}>No reviews</p>
+                    </div>
+                  )}
+
+                  <div className="description">
+                    <p>{meal.description}</p>
+                  </div>
+                  <hr />
+                  <div className="price">
+                    <p>Price:{meal.price}DK</p>
+                  </div>
+                  <hr />
+                  <div className="moreinfo">
+                    <Link to={`/meals/${meal.id}`}>
+                      <h3 className="moreinfo-link">MoreInfo</h3>
+                    </Link>
+                  </div>
+                  <div className="review">
+                    <Link to={`/addreview/${meal.id}`}>
+                      <h3 className="review-link">Review</h3>
+                    </Link>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <h2>No meals found...</h2>
+            )}
+          </div>
+        </>
+      )}
 
       <div className="add-meal">
         <form onSubmit={addMeal}>
@@ -210,12 +225,11 @@ function Meals({ meals }) {
             </label>
             <input
               type="text"
-              value={title}
+              name="title"
+              value={inputs.title}
+              required
               className="form-input"
-              onChange={(event) => {
-                const value = event.target.value;
-                setTitle(value);
-              }}
+              onChange={handleChange}
             />
           </div>
           <br />
@@ -225,12 +239,11 @@ function Meals({ meals }) {
             </label>
             <input
               type="text"
-              value={description}
+              name="description"
+              value={inputs.description}
+              required
               className="form-input"
-              onChange={(event) => {
-                const value = event.target.value;
-                setDescription(value);
-              }}
+              onChange={handleChange}
             />
           </div>
           <br />
@@ -240,12 +253,11 @@ function Meals({ meals }) {
             </label>
             <input
               type="text"
-              value={location}
+              name="location"
+              value={inputs.location}
+              required
               className="form-input"
-              onChange={(event) => {
-                const value = event.target.value;
-                setLocation(value);
-              }}
+              onChange={handleChange}
             />
           </div>
           <br />
@@ -255,12 +267,11 @@ function Meals({ meals }) {
             </label>
             <input
               type="datetime-local"
-              value={when}
+              name="when"
+              value={inputs.when}
+              required
               className="form-input"
-              onChange={(event) => {
-                const value = event.target.value;
-                setWhen(value);
-              }}
+              onChange={handleChange}
             />
           </div>
           <br />
@@ -270,12 +281,11 @@ function Meals({ meals }) {
             </label>
             <input
               type="number"
-              value={maxreservations}
+              name="maxreservations"
+              value={inputs.maxreservations}
+              required
               className="form-input"
-              onChange={(event) => {
-                const value = event.target.value;
-                setMaxreservations(value);
-              }}
+              onChange={handleChange}
             />
           </div>
           <br />
@@ -285,12 +295,11 @@ function Meals({ meals }) {
             </label>
             <input
               type="number"
-              value={price}
+              name="price"
+              value={inputs.price}
+              required
               className="form-input"
-              onChange={(event) => {
-                const value = event.target.value;
-                setPrice(value);
-              }}
+              onChange={handleChange}
             />
           </div>
 
@@ -302,18 +311,14 @@ function Meals({ meals }) {
             </label>
             <input
               type="date"
-              value={createddate}
+              name="createddate"
+              value={inputs.createddate}
+              required
               className="form-input"
-              onChange={(event) => {
-                const value = event.target.value;
-                setCreateddate(value);
-              }}
+              onChange={handleChange}
             />
           </div>
           <button type="submit">AddMeal</button>
-          {success && <h3>{success}</h3>}
-          {error && <h3>{error}</h3>}
-          {formerror && <h3 style={{ textAlign: "center" }}>{formerror}</h3>}
         </form>
       </div>
     </div>

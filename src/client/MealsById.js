@@ -1,17 +1,28 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import postData from "./Postdata";
 
+const initialValues = {
+  name: "",
+  email: "",
+  phonenumber: "",
+  numberofguests: "",
+};
 function MealsById() {
   const params = useParams();
   const [meal, setMeal] = useState({});
-  const [name, setName] = useState("");
-  const [email, setEmail] = useState("");
-  const [phonenumber, setPhoneNumber] = useState("");
-  const [numberofguests, setNumberOfGuests] = useState("");
-  const [success, setSuccess] = useState("");
-  const [error, setError] = useState("");
-  const [formerror, setFormError] = useState("");
+  const [inputs, setInputs] = useState(initialValues);
   const [availablereservations, setAvailablereservations] = useState([]);
+
+  //onchange function
+
+  const handleChange = (event) => {
+    const value = event.target.value;
+    setInputs({
+      ...inputs,
+      [event.target.name]: value,
+    });
+  };
 
   //fetching the meals by id
   useEffect(() => {
@@ -33,60 +44,30 @@ function MealsById() {
   const specificMeal = availablereservations.filter(
     (element) => element.id === Number(params.id)
   );
-
-  //post request using fetch
-  async function postDataForReservations(url = "", data = {}) {
-    try {
-      const response = await fetch(url, {
-        method: "POST",
-        mode: "cors",
-        cache: "no-cache",
-        credentials: "same-origin",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        redirect: "follow",
-        referrerPolicy: "no-referrer",
-        body: JSON.stringify(data),
-      });
-
-      if (response.ok) {
-        const message = `${data.contact_name} has been reserved ${data.number_of_guests} slots`;
-        setSuccess(message);
-      }
-      return response.json();
-    } catch (error) {
-      setError(error);
-    }
-  }
-
+  //adding the reservation
   const addReservation = (event) => {
     event.preventDefault();
     const reservationValues = {
-      number_of_guests: numberofguests,
+      number_of_guests: inputs.numberofguests,
       meal_id: params.id,
-      contact_phonenumber: phonenumber,
-      contact_name: name,
-      contact_email: email,
+      contact_phonenumber: inputs.phonenumber,
+      contact_name: inputs.name,
+      contact_email: inputs.email,
     };
-    if (
-      name !== "" &&
-      email !== "" &&
-      phonenumber !== "" &&
-      numberofguests !== ""
-    ) {
-      postDataForReservations("/api/reservations", reservationValues).then(
-        (data) => {
-          console.log(data); // JSON data parsed by `data.json()` call
-        }
+
+    const response = postData("/api/reservations", reservationValues).then(
+      (data) => {
+        console.log(data); // JSON data parsed by `data.json()` call
+      }
+    );
+    if (response) {
+      alert(
+        `${reservationValues.contact_name} has been reserved ${reservationValues.number_of_guests} slots`
       );
-      setName("");
-      setEmail("");
-      setPhoneNumber("");
-      setNumberOfGuests("");
     } else {
-      setFormError("Please fill the form before clicking the reserve button");
+      throw new Error(response.status);
     }
+    setInputs(initialValues);
   };
 
   return (
@@ -135,10 +116,9 @@ function MealsById() {
             <input
               type="text"
               name="name"
-              onChange={(event) => {
-                const value = event.target.value;
-                setName(value);
-              }}
+              value={inputs.name}
+              required
+              onChange={handleChange}
             />
             <br />
             <label htmlFor="email">Email Address*</label>
@@ -146,10 +126,9 @@ function MealsById() {
             <input
               type="text"
               name="email"
-              onChange={(event) => {
-                const value = event.target.value;
-                setEmail(value);
-              }}
+              value={inputs.email}
+              required
+              onChange={handleChange}
             />
             <br />
             <label htmlFor="phonenumber">Phone Number*</label>
@@ -157,10 +136,9 @@ function MealsById() {
             <input
               type="number"
               name="phonenumber"
-              onChange={(event) => {
-                const value = event.target.value;
-                setPhoneNumber(value);
-              }}
+              value={inputs.phonenumber}
+              required
+              onChange={handleChange}
             />
             <br />
             <label htmlFor="guests">Number Of Guests*</label>
@@ -168,26 +146,22 @@ function MealsById() {
             <input
               type="number"
               name="numberofguests"
+              value={inputs.numberofguests}
+              required
               min="0"
               max={specificMeal.map((meal) => {
                 return meal.available_space
                   ? meal.available_space
                   : meal.max_reservations;
               })}
-              onChange={(event) => {
-                const value = event.target.value;
-                setNumberOfGuests(Number(value));
-              }}
+              onChange={handleChange}
             />
             <br />
             <button type="submit">Reserve</button>
-            {success && <h3>{success}</h3>}
-            {error && <h3>{error}</h3>}
           </form>
         ) : (
           <h2>Sorry we dont have the available reservations..</h2>
         )}
-        {formerror && alert(formerror)}
       </div>
     </>
   );

@@ -1,35 +1,12 @@
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
+import postData from "./Postdata";
 
 function AddReview() {
   const params = useParams();
   const [reviewTitle, setReviewTitle] = useState("");
   const [reviewdescription, setReviewDescription] = useState("");
   const [reviewrating, setReviewRating] = useState("");
-  const [message, setMessage] = useState("");
-  //post request using fetch
-  async function postDataForReviews(url = "", data = {}) {
-    try {
-      const response = await fetch(url, {
-        method: "POST",
-        mode: "cors",
-        cache: "no-cache",
-        credentials: "same-origin",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        redirect: "follow",
-        referrerPolicy: "no-referrer",
-        body: JSON.stringify(data), // body data type must match "Content-Type" header
-      });
-      if (response.ok) {
-        setMessage("Thanks for Your comments..");
-      }
-      return response.json();
-    } catch (error) {
-      console.log(error);
-    }
-  }
 
   //adding the review
   const addReview = (event) => {
@@ -40,9 +17,14 @@ function AddReview() {
       meal_id: params.id,
       stars: reviewrating,
     };
-    postDataForReviews("/api/reviews", reviewValues).then((data) => {
+    const response = postData("/api/reviews", reviewValues).then((data) => {
       console.log(data); // JSON data parsed by `data.json()` call
     });
+    if (response) {
+      alert("Thanks for Your comments..");
+    } else {
+      throw new Error(response.status);
+    }
     setReviewTitle("");
     setReviewDescription("");
     setReviewRating("");
@@ -102,15 +84,14 @@ function AddReview() {
           >
             <option>Select a rating</option>
             <option value="1">1</option>
-            <option value="1">2</option>
-            <option value="1">3</option>
-            <option value="1">4</option>
-            <option value="1">5</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
           </select>
         </div>
         <button type="submit">AddReview</button>
       </form>
-      {message && <h3>{message}</h3>}
     </div>
   );
 }

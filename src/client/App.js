@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { Route, Switch } from "react-router-dom";
 import Navigation from "./Navigation";
 import "./App.css";
@@ -8,8 +8,6 @@ import MealsById from "./MealsById";
 import About from "./About";
 import Contact from "./Contact";
 import AddReview from "./AddReview";
-
-const API = `/api/meals`;
 
 function Home() {
   return (
@@ -25,23 +23,13 @@ function Home() {
       <img
         src="https://cdn.wallpapersafari.com/29/95/msu3PY.jpg"
         width="100%"
-        height="450px"
+        height="500px"
       />
     </div>
   );
 }
 
 function App() {
-  const [meals, setMeals] = useState([]);
-
-  useEffect(() => {
-    fetch(API)
-      .then((res) => res.json())
-      .then((data) => {
-        setMeals(data);
-      });
-  }, []);
-
   return (
     <>
       <Navigation />
@@ -53,7 +41,7 @@ function App() {
           <About />
         </Route>
         <Route exact path="/meals">
-          <Meals meals={meals} />
+          <Meals />
         </Route>
         <Route exact path="/meals/:id">
           <MealsById />
