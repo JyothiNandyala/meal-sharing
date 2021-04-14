@@ -75,7 +75,6 @@ function Meals() {
   const images = [
     "https://5.imimg.com/data5/BQ/LF/MY-24852937/rasmalai-sweet-500x500.jpg",
     "https://www.budgetbytes.com/wp-content/uploads/2016/04/Ultimate-Portobello-Mushroom-Pizza-sliced-1-500x480.jpg",
-    "https://indianakitchen.com/wp-content/uploads/2015/03/Ham-Sandwich.jpg",
     "https://www.recipetineats.com/wp-content/uploads/2017/11/Chicken-Doner-Kebab-2.jpg",
     "https://ministryofcurry.com/wp-content/uploads/2020/04/spinach-dal-1-scaled.jpg",
     "https://www.vegrecipesofindia.com/wp-content/uploads/2015/04/kaju-masala-recipe-1.jpg",
