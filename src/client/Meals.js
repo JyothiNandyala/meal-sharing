@@ -130,7 +130,9 @@ function Meals() {
                 <div className="main" key={meal.id}>
                   <div className="image">
                     <img
-                      src={images[meal.id] ? images[meal.id - 1] : randomImage}
+                      src={
+                        images[meal.id - 1] ? images[meal.id - 1] : randomImage
+                      }
                     />
                   </div>
                   <div className="title">
