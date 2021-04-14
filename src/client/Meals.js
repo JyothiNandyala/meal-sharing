@@ -75,18 +75,15 @@ function Meals() {
   const images = [
     "https://5.imimg.com/data5/BQ/LF/MY-24852937/rasmalai-sweet-500x500.jpg",
     "https://www.budgetbytes.com/wp-content/uploads/2016/04/Ultimate-Portobello-Mushroom-Pizza-sliced-1-500x480.jpg",
+    "https://indianakitchen.com/wp-content/uploads/2015/03/Ham-Sandwich.jpg",
     "https://www.recipetineats.com/wp-content/uploads/2017/11/Chicken-Doner-Kebab-2.jpg",
     "https://ministryofcurry.com/wp-content/uploads/2020/04/spinach-dal-1-scaled.jpg",
     "https://www.vegrecipesofindia.com/wp-content/uploads/2015/04/kaju-masala-recipe-1.jpg",
     "https://cdn.igp.com/f_auto,q_auto,t_prodm/products/p-pineapple-cake-with-cherry-toppings-1-kg--16989-m.jpg",
   ];
 
-  const randomPics = [
-    "https://media1.s-nbcnews.com/i/newscms/2019_21/2870431/190524-classic-american-cheeseburger-ew-207p_d9270c5c545b30ea094084c7f2342eb4.jpg",
-    "https://i2.wp.com/runningonrealfood.com/wp-content/uploads/2018/01/gluten-free-vegan-everyday-healthy-rainbow-salad-Running-on-Real-Food-6-of-10.jpg",
-  ];
-
-  let randomImages = randomPics[Math.floor(Math.random() * randomPics.length)];
+  const randomImage =
+    "https://i2.wp.com/runningonrealfood.com/wp-content/uploads/2018/01/gluten-free-vegan-everyday-healthy-rainbow-salad-Running-on-Real-Food-6-of-10.jpg";
 
   const addMeal = (event) => {
     event.preventDefault();
@@ -130,10 +127,12 @@ function Meals() {
           </div>
           <div className="cards">
             {meals.length > 0 ? (
-              meals.map((meal, index) => (
+              meals.map((meal) => (
                 <div className="main" key={meal.id}>
                   <div className="image">
-                    <img src={images[index] ? images[index] : randomImages} />
+                    <img
+                      src={images[meal.id] ? images[meal.id - 1] : randomImage}
+                    />
                   </div>
                   <div className="title">
                     <h4>{meal.title}</h4>
