@@ -1,6 +1,7 @@
-@import url('https://fonts.googleapis.com/css?family=Montserrat&display=swap');
-@import 'theme.css';
-* {
+@import url("https://fonts.googleapis.com/css?family=Montserrat&display=swap");
+@import "theme.css";
+
+/** {
   font-family: 'Montserrat', sans-serif;
   box-sizing: border-box;
 }
@@ -49,4 +50,4 @@ button {
     padding-left: 0;
     padding-right: 0;
   }
-}
+}*/
